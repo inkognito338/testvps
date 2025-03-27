@@ -9,13 +9,16 @@ jobs:
 
     steps:
     - name: Download Ngrok
-      run: Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
+      run: Invoke-WebRequest -Uri "https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip" -OutFile "ngrok.zip"
 
     - name: Extract Ngrok
-      run: Expand-Archive -Path ngrok.zip -DestinationPath .
+      run: Expand-Archive -Path "ngrok.zip" -DestinationPath "$env:USERPROFILE\ngrok"
+
+    - name: Add Ngrok to PATH
+      run: echo "$env:USERPROFILE\ngrok" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
 
     - name: Authenticate Ngrok
-      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+      run: ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
       env:
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
 
@@ -31,4 +34,4 @@ jobs:
         RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
 
     - name: Start Ngrok Tunnel
-      run: .\ngrok\ngrok.exe tcp 3389
+      run: ngrok.exe tcp 3389
